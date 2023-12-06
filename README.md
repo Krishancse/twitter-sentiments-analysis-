@@ -89,4 +89,3 @@ This project is licensed under the [MIT License](LICENSE). Feel free to use and 
 Feel free to reach out if you have any questions or suggestions! Happy analyzing! 📊🐦
 ```
 
-Please replace "Krishan Kant" and "krishan.kant.0205@outlook.com" with your correct name and email.
