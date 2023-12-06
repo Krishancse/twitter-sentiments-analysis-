@@ -1,0 +1,17 @@
+from pymongo import MongoClient
+
+# Connect to database
+client = MongoClient("mongodb://localhost:27017/")
+db = client.your_database
+
+# Get collection
+collection = db.tweet_analysis
+
+
+
+# ...
+
+# Save analysis to database
+collection.insert_one({"tweet": tweet, "sentiment": sentiment})
+
+# ...
