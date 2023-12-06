@@ -1,0 +1,6 @@
+CREATE TABLE tweet_analysis (
+  id SERIAL PRIMARY KEY,
+  tweet TEXT NOT NULL,
+  sentiment VARCHAR(255) NOT NULL
+);
+
