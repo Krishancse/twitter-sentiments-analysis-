@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Web App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis Web App</h1>
+        <textarea id="tweetInput" placeholder="Enter a tweet"></textarea>
+        <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+        <p id="result"></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+css
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+textarea {
+    width: 100%;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#result {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+js
+function analyzeSentiment() {
+    const tweetInput = document.getElementById('tweetInput');
+    const resultElement = document.getElementById('result');
+
+    // Get the input value
+    const customTweet = tweetInput.value;
+
+    // Send the tweet to the backend for sentiment analysis (you need to implement this)
+    // Assume there is an API endpoint '/analyze' that takes a tweet and returns sentiment
+    fetch('/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tweet: customTweet }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display the result
+        resultElement.innerText = `Sentiment: ${data.sentiment}`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+api 
+from flask import Flask, request, jsonify
+
+# Import nltk libraries
+import nltk
+nltk.download('twitter_samples')
+nltk.download('punkt')
+nltk.download('stopwords')
+
+# Load positive and negative tweets from NLTK Twitter dataset
+from nltk.corpus import twitter_samples
+positive_tweets = twitter_samples.strings('positive_tweets.json')
+negative_tweets = twitter_samples.strings('negative_tweets.json')
+
+# Define functions from previous code
+def preprocess_tweet(tweet_tokens):
+    cleaned_tokens = []
+    stop_words = set(stopwords.words('english'))
+    punctuation = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!']
+    for token in tweet_tokens:
+        if token.lower() not in stop_words and token not in punctuation:
+            cleaned_tokens.append(token.lower())
+    return cleaned_tokens
+
+def get_features(tweet_tokens, common_words):
+    features = {}
+    for word in common_words:
+        features[word] = word in tweet_tokens
+    return features
+
+# Preprocess and tokenize tweets
+positive_tweet_tokens = [word_tokenize(tweet) for tweet in positive_tweets]
+negative_tweet_tokens = [word_tokenize(tweet) for tweet in negative_tweets]
+positive_cleaned_tokens_list = [preprocess_tweet(tokens) for tokens in positive_tweet_tokens]
+negative_cleaned_tokens_list = [preprocess_tweet(tokens) for tokens in negative_tweet_tokens]
+
+# Combine and process all tokens
+all_cleaned_tokens = positive_cleaned_tokens_list + negative_cleaned_tokens_list
+all_words = [word for tokens in all_cleaned_tokens for word in tokens]
+freq_dist = FreqDist(all_words)
+
+# Define common words and train classifier
+common_words = freq_dist.most_common(100)
+common_words = [word[0] for word in common_words]
+positive_features = [(get_features(tweet_tokens, common_words), "Positive") for tweet_tokens in positive_cleaned_tokens_list]
+negative_features = [(get_features(tweet_tokens, common_words), "Negative") for tweet_tokens in negative_cleaned_tokens_list]
+features = positive_features + negative_features
+from nltk import NaiveBayesClassifier
+classifier = NaiveBayesClassifier.train(features)
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Define API endpoint for sentiment analysis
+@app.route('/analyze', methods=['POST'])
+def analyze_tweet():
+    # Get tweet from request body
+    tweet = request.get_json()['tweet']
+
+    # Preprocess and tokenize tweet
+    tweet_tokens = preprocess_tweet(word_tokenize(tweet))
+
+    # Extract features and predict sentiment
+    tweet_features = get_features(tweet_tokens, common_words)
+    sentiment = classifier.classify(tweet_features)
+
+    # Return response
+    return jsonify({'sentiment': sentiment})
+
+# Run the Flask app
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+database
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+Base = declarative_base()
+
+class TweetAnalysis(Base):
+    __tablename__ = "tweet_analysis"
+
+    id = Column(Integer, primary_key=True)
+    tweet = Column(String)
+    sentiment = Column(String)
+
+engine = create_engine("sqlite:///sentiment_analysis.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+Base.metadata.create_all(engine)
+
+api modification
+@app.route('/analyze', methods=['POST'])
+def analyze_tweet():
+    tweet = request.get_json()['tweet']
+
+    # Preprocess and tokenize tweet
+    tweet_tokens = preprocess_tweet(word_tokenize(tweet))
+
+    # Extract features and predict sentiment
+    tweet_features = get_features(tweet_tokens, common_words)
+    sentiment = classifier.classify(tweet_features)
+
+    # Save analysis to database
+    new_analysis = TweetAnalysis(tweet=tweet, sentiment=sentiment)
+    session.add(new_analysis)
+    session.commit()
+
+    # Return response
+    return jsonify({'sentiment': sentiment})
+
