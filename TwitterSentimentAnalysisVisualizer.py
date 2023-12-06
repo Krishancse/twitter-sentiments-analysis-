@@ -3,10 +3,6 @@ a Python script that generates various types of plots and visualizations using t
 ```bash
 pip install plotly wordcloud
 ```
-
-Now, let's create the script:
-
-```python
 import plotly.graph_objs as go
 import json
 from wordcloud import WordCloud
@@ -16,7 +12,6 @@ from nltk.corpus import twitter_samples
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk import FreqDist
-import matplotlib.pyplot as plt
 
 # Download the NLTK datasets (if not already downloaded)
 nltk.download("twitter_samples")
@@ -67,33 +62,30 @@ def get_features(tweet_tokens, common_words):
 common_words = freq_dist.most_common(20)
 common_words = [word[0] for word in common_words]
 
-# Function to train a Naive Bayes classifier
-def train_classifier(train_set):
-    classifier = nltk.NaiveBayesClassifier.train(train_set)
-    return classifier
+# Create a feature set for each tweet
+positive_features = [(get_features(tweet_tokens, common_words), "Positive") for tweet_tokens in positive_cleaned_tokens_list]
+negative_features = [(get_features(tweet_tokens, common_words), "Negative") for tweet_tokens in negative_cleaned_tokens_list]
 
-# Function to test the classifier
-def test_classifier(classifier, test_set):
-    accuracy = nltk.classify.util.accuracy(classifier, test_set)
-    print("Accuracy:", accuracy)
+# Combine positive and negative feature sets
+features = positive_features + negative_features
 
-# Function to classify a custom tweet
-def classify_tweet(classifier, custom_tweet):
-    custom_tokens = preprocess_tweet(word_tokenize(custom_tweet))
-    custom_features = get_features(custom_tokens, common_words)
-    sentiment = classifier.classify(custom_features)
-    print("Sentiment:", sentiment)
+# Shuffle the feature sets
+random.shuffle(features)
 
 # Train a Naive Bayes classifier
-train_set, test_set = features[:8000], features[8000:]
-classifier = train_classifier(train_set)
+from nltk import NaiveBayesClassifier
+classifier = NaiveBayesClassifier.train(features)
 
 # Test the classifier
-test_classifier(classifier, test_set)
+accuracy = nltk.classify.util.accuracy(classifier, features)
+print("Accuracy:", accuracy)
 
 # Test the classifier on custom tweets
 custom_tweet = input("Enter a custom tweet: ")
-classify_tweet(classifier, custom_tweet)
+custom_tokens = preprocess_tweet(word_tokenize(custom_tweet))
+custom_features = get_features(custom_tokens, common_words)
+sentiment = classifier.classify(custom_features)
+print("Sentiment:", sentiment)
 
 # Function to generate timeline graph
 def timeline_graph(tweets):
@@ -191,4 +183,15 @@ def tweet_type_graph(tweets):
     data = [go.Bar(
         x=typ,
         y=typ.index,
-        orientation='
+        orientation='v'  # Assuming you want the orientation to be 'vertical'. Adjust as needed.
+    )]
+
+    layout = go.Layout(title={'text': 'Tweet Types',
+                              'y': 0.9,
+                              'x': 0.5,
+                              'xanchor': 'center',
+                              'yanchor': 'top'})
+    fig = go.Figure(data=data, layout=layout)
+
+    graphJSON = json.dumps(fig, cls=go.PlotlyJSONEncoder)
+    return graphJSON
