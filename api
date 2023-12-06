@@ -1,0 +1,72 @@
+api 
+from flask import Flask, request, jsonify
+
+# Import nltk libraries
+import nltk
+nltk.download('twitter_samples')
+nltk.download('punkt')
+nltk.download('stopwords')
+
+# Load positive and negative tweets from NLTK Twitter dataset
+from nltk.corpus import twitter_samples
+positive_tweets = twitter_samples.strings('positive_tweets.json')
+negative_tweets = twitter_samples.strings('negative_tweets.json')
+
+# Define functions from previous code
+def preprocess_tweet(tweet_tokens):
+    cleaned_tokens = []
+    stop_words = set(stopwords.words('english'))
+    punctuation = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!']
+    for token in tweet_tokens:
+        if token.lower() not in stop_words and token not in punctuation:
+            cleaned_tokens.append(token.lower())
+    return cleaned_tokens
+
+def get_features(tweet_tokens, common_words):
+    features = {}
+    for word in common_words:
+        features[word] = word in tweet_tokens
+    return features
+
+# Preprocess and tokenize tweets
+positive_tweet_tokens = [word_tokenize(tweet) for tweet in positive_tweets]
+negative_tweet_tokens = [word_tokenize(tweet) for tweet in negative_tweets]
+positive_cleaned_tokens_list = [preprocess_tweet(tokens) for tokens in positive_tweet_tokens]
+negative_cleaned_tokens_list = [preprocess_tweet(tokens) for tokens in negative_tweet_tokens]
+
+# Combine and process all tokens
+all_cleaned_tokens = positive_cleaned_tokens_list + negative_cleaned_tokens_list
+all_words = [word for tokens in all_cleaned_tokens for word in tokens]
+freq_dist = FreqDist(all_words)
+
+# Define common words and train classifier
+common_words = freq_dist.most_common(100)
+common_words = [word[0] for word in common_words]
+positive_features = [(get_features(tweet_tokens, common_words), "Positive") for tweet_tokens in positive_cleaned_tokens_list]
+negative_features = [(get_features(tweet_tokens, common_words), "Negative") for tweet_tokens in negative_cleaned_tokens_list]
+features = positive_features + negative_features
+from nltk import NaiveBayesClassifier
+classifier = NaiveBayesClassifier.train(features)
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Define API endpoint for sentiment analysis
+@app.route('/analyze', methods=['POST'])
+def analyze_tweet():
+    # Get tweet from request body
+    tweet = request.get_json()['tweet']
+
+    # Preprocess and tokenize tweet
+    tweet_tokens = preprocess_tweet(word_tokenize(tweet))
+
+    # Extract features and predict sentiment
+    tweet_features = get_features(tweet_tokens, common_words)
+    sentiment = classifier.classify(tweet_features)
+
+    # Return response
+    return jsonify({'sentiment': sentiment})
+
+# Run the Flask app
+if __name__ == '__main__':
+    app.run(debug=True)
