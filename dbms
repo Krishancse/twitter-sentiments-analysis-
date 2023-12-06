@@ -1,0 +1,38 @@
+database
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+Base = declarative_base()
+
+class TweetAnalysis(Base):
+    __tablename__ = "tweet_analysis"
+
+    id = Column(Integer, primary_key=True)
+    tweet = Column(String)
+    sentiment = Column(String)
+
+engine = create_engine("sqlite:///sentiment_analysis.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+Base.metadata.create_all(engine)
+
+api modification
+@app.route('/analyze', methods=['POST'])
+def analyze_tweet():
+    tweet = request.get_json()['tweet']
+
+    # Preprocess and tokenize tweet
+    tweet_tokens = preprocess_tweet(word_tokenize(tweet))
+
+    # Extract features and predict sentiment
+    tweet_features = get_features(tweet_tokens, common_words)
+    sentiment = classifier.classify(tweet_features)
+
+    # Save analysis to database
+    new_analysis = TweetAnalysis(tweet=tweet, sentiment=sentiment)
+    session.add(new_analysis)
+    session.commit()
+
+    # Return response
+    return jsonify({'sentiment': sentiment})
