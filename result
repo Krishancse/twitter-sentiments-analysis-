@@ -1,0 +1,12 @@
+[nltk_data] Downloading package twitter_samples to
+[nltk_data]     C:\Users\Dell\AppData\Roaming\nltk_data...
+[nltk_data]   Package twitter_samples is already up-to-date!
+[nltk_data] Downloading package punkt to
+[nltk_data]     C:\Users\Dell\AppData\Roaming\nltk_data...
+[nltk_data]   Package punkt is already up-to-date!
+[nltk_data] Downloading package stopwords to
+[nltk_data]     C:\Users\Dell\AppData\Roaming\nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+Accuracy: 0.6417
+Enter a custom tweet: css is not good 
+Sentiment: Negative
