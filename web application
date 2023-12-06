@@ -1,0 +1,59 @@
+Flask web application script (app.py) to visualize Twitter sentiment analysis results. This script uses Flask for the web framework and assumes you have a function analyze_sentiments for performing sentiment analysis:
+from flask import Flask, render_template, request
+from analyze_sentiments import analyze_sentiments
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    if request.method == 'POST':
+        username = request.form['username']
+        results = analyze_sentiments(username)
+        return render_template('results.html', username=username, results=results)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+This script assumes that you have HTML templates (index.html and results.html) in a folder named templates within your project directory.
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Sentiment Analysis</title>
+</head>
+<body>
+    <h1>Twitter Sentiment Analysis</h1>
+    <form action="/analyze" method="post">
+        <label for="username">Enter Twitter Username:</label>
+        <input type="text" id="username" name="username" required>
+        <button type="submit">Analyze</button>
+    </form>
+</body>
+</html>
+
+
+results.html
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results</title>
+</head>
+<body>
+    <h1>Analysis Results for {{ username }}</h1>
+    <p>Sentiment: {{ results.sentiment }}</p>
+    <p>Positive Percentage: {{ results.positive_percentage }}%</p>
+    <p>Negative Percentage: {{ results.negative_percentage }}%</p>
+    <p>Neutral Percentage: {{ results.neutral_percentage }}%</p>
+    <a href="/">Back to Home</a>
+</body>
+</html>
