@@ -1,0 +1,30 @@
+import psycopg2
+
+# Connect to database
+conn = psycopg2.connect(
+    database="your_database",
+    user="your_username",
+    password="your_password",
+    host="your_hostname",
+    port="your_port"
+)
+cursor = conn.cursor()
+
+# Define function to save analysis
+def save_analysis(tweet, sentiment):
+    cursor.execute("""
+        INSERT INTO tweet_analysis (tweet, sentiment)
+        VALUES (%s, %s)
+    """, (tweet, sentiment))
+    conn.commit()
+
+# ...
+
+# Save analysis to database
+save_analysis(tweet, sentiment)
+
+# ...
+
+# Close database connection
+cursor.close()
+conn.close()
