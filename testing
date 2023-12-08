@@ -1,0 +1,22 @@
+import unittest
+from unittest.mock import patch
+from analyze_sentiments import analyze_sentiments
+
+class TestSentimentAnalysis(unittest.TestCase):
+
+    @patch('builtins.input', return_value='twitter_username_or_hashtag')
+    def test_analyze_sentiments(self, mock_input):
+        # Mock input to provide a Twitter username or hashtag
+        with patch('builtins.print') as mock_print:
+            analyze_sentiments()
+            # Add assertions based on the expected behavior of your analyze_sentiments function
+
+            # Example assertion: Check if the mock_print was called with certain messages
+            mock_print.assert_called_with("Sentiment Analysis Results:")
+            mock_print.assert_called_with("Positive tweets:", 10)  # Update with the actual expected count
+
+            # Example assertion: Check if the mock_print was called with the correct sentiment percentages
+            mock_print.assert_called_with("Positive: 50%, Negative: 30%, Neutral: 20%")  # Update with the actual expected percentages
+
+if __name__ == '__main__':
+    unittest.main()
