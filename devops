@@ -30,3 +30,49 @@ Run the Docker container:
 docker run -p 4000:80 your-image-name
 
 
+
+
+
+
+Kubernetes Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: your-app
+  template:
+    metadata:
+      labels:
+        app: your-app
+    spec:
+      containers:
+        - name: your-container
+          image: your-image-name
+          ports:
+            - containerPort: 80
+
+
+kubectl apply -f deployment.yaml
+
+
+Kubernetes Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: your-service
+spec:
+  selector:
+    app: your-app
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+
+
+kubectl apply -f service.yaml
