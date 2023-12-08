@@ -1,0 +1,102 @@
+
+1. **Initial Project Setup:**
+   ```
+   Initial commit with project structure and basic files
+   ```
+
+2. **Configuring Twitter API and Database Interaction:**
+   ```
+   Configure API and database interactions
+   ```
+
+3. **Implement Sentiment Analysis Script:**
+   ```
+   Implement main script for sentiment analysis
+   ```
+
+4. **Update README:**
+   ```
+   Update README with installation, usage, and project details
+   ```
+
+5. **Add API Code for Database Interaction:**
+   ```
+   Add code to interact with the database via API
+   ```
+
+6. **Enhance Security and Authenticity:**
+   ```
+   Enhance security measures for Twitter sentiment analysis
+   ```
+
+7. **Configure SQLAlchemy Connection:**
+   ```
+   Configure connection to the database using SQLAlchemy
+   ```
+
+8. **MongoDB Integration:**
+   ```
+   Integrate MongoDB and API code for database interaction
+   ```
+
+9. **Visualizer Script Update:**
+   ```
+   Update Twitter Sentiment Analysis Visualizer script
+   ```
+
+10. **Create Web Application and Website:**
+    ```
+    Create directories and files for the web application and website
+    ```
+
+11. **Refactor and Rename:**
+    ```
+    Refactor code and rename 'requirement' directory to 'requirement library'
+    ```
+
+12. **Add Plotly Integration:**
+    ```
+    Add script for importing Plotly Twitter feeds and display
+    ```
+
+13. **Create Result Directory:**
+    ```
+    Create directory for storing result data
+    ```
+
+14. **Create Runtime Directory:**
+    ```
+    Create directory for storing runtime data
+    ```
+
+15. **HTML Update:**
+    ```
+    Update Twitter Sentiment Analysis HTML file
+    ```
+
+16. **Create API and Code Directories:**
+    ```
+    Create 'api' and 'code' directories
+    ```
+
+17. **Create Database and DBMS Directories:**
+    ```
+    Create 'database' and 'dbms' directories
+    ```
+
+18. **GitHub Actions Configuration:**
+    ```
+    Add GitHub Actions configuration for Pylint
+    ```
+
+19. **Minor README Update:**
+    ```
+    Minor update in README.md
+    ```
+
+20. **Create Pylint Configuration:**
+    ```
+    Create Pylint configuration file
+    ```
+
+These examples assume specific actions based on your commit messages. Adjust them according to the actual changes made in each commit. It's always good to keep commit messages clear, concise, and related to the changes made in the commit.
